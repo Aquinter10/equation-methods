@@ -110,50 +110,58 @@ function ReglaFalsa() {
     }
   };
 
-  const calculateRoot = () => {
-    try {
-      let a = parseFloat(lowerBound);
-      let b = parseFloat(upperBound);
-      const tol = parseFloat(tolerance);
-      const maxIter = parseInt(maxIterations);
+const calculateRoot = () => {
+  try {
+    let a = parseFloat(lowerBound);
+    let b = parseFloat(upperBound);
+    const tol = parseFloat(tolerance);
+    const maxIter = parseInt(maxIterations);
 
-      let fa = evaluateFunction(a);
-      let fb = evaluateFunction(b);
+    let fa = evaluateFunction(a);
+    let fb = evaluateFunction(b);
 
-      if (fa * fb >= 0) {
-        setError('La función debe cambiar de signo en el intervalo [a, b]');
-        return;
-      }
-
-      let newSteps = [];
-      let iteration = 0;
-      let c, fc;
-      let err = Math.abs(b - a);
-      setError('');
-
-      while (err > tol && iteration < maxIter) {
-        c = (a * fb - b * fa) / (fb - fa);
-        fc = evaluateFunction(c);
-        newSteps.push({ iteration: iteration + 1, a, b, c, fa, fb, fc, error: err });
-
-        if (fc === 0) break;
-        if (fa * fc < 0) {
-          b = c;
-          fb = fc;
-        } else {
-          a = c;
-          fa = fc;
-        }
-        err = Math.abs(b - a);
-        iteration++;
-      }
-
-      setSteps(newSteps);
-      setResult({ root: c, functionValue: fc, iterations: iteration, error: err });
-    } catch (err) {
-      setError('Error en el cálculo: ' + err.message);
+    if (fa * fb >= 0) {
+      setError('La función debe cambiar de signo en el intervalo [a, b]');
+      return;
     }
-  };
+
+    let newSteps = [];
+    let iteration = 0;
+    let c, fc, cPrev = null;
+    let err = Infinity; // Valor inicial de error muy grande
+    setError('');
+
+    while (err > tol && iteration < maxIter) {
+      c = (a * fb - b * fa) / (fb - fa);
+      fc = evaluateFunction(c);
+
+      if (cPrev !== null) {
+        err = Math.abs(c - cPrev);
+      }
+
+      newSteps.push({ iteration: iteration + 1, a, b, c, fa, fb, fc, error: err });
+
+      if (fc === 0) break;
+
+      if (fa * fc < 0) {
+        b = c;
+        fb = fc;
+      } else {
+        a = c;
+        fa = fc;
+      }
+
+      cPrev = c;
+      iteration++;
+    }
+
+    setSteps(newSteps);
+    setResult({ root: c, functionValue: fc, iterations: iteration, error: err });
+  } catch (err) {
+    setError('Error en el cálculo: ' + err.message);
+  }
+};
+
 
   useEffect(() => {
     drawGraph();
