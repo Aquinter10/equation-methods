@@ -39,6 +39,10 @@ function App() {
       <div className="metodo-container">
         {metodo === "Raices Multiples" && <MultipleRoots />}
       </div>
+      <br></br>
+      <div className="button-group">
+        <a href="https://aquinter10.github.io/proyecto-analisis-numerico/" className="button">Go back Home</a>
+      </div>
     </div>
   );
 }
