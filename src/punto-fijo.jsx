@@ -292,7 +292,7 @@ function PuntoFijo() {
       
       <div className="main-content">
         <div className="graph-container">
-          <canvas ref={canvasRef} width={600} height={400} />
+          <canvas ref={canvasRef} width={700} height={800} />
           <div className="graph-legend">
             <div><span className="legend-color" style={{backgroundColor: '#2C7FB8'}}></span>f(x) = {functionExpression}</div>
             <div><span className="legend-color" style={{backgroundColor: '#FF6B6B'}}></span>g(x) = {gFunctionExpression}</div>

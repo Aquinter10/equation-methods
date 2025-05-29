@@ -245,7 +245,7 @@ function App() {
       
       <div className="main-content">
         <div className="graph-container">
-          <canvas ref={canvasRef} width={600} height={400} />
+          <canvas ref={canvasRef} width={700} height={800} />
         </div>
         
         <div className="right-section">

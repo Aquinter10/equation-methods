@@ -5,7 +5,8 @@ import newtongif from '/newton.gif';
 
 function Newton() {
   const [functionExpression, setFunctionExpression] = useState('x^2 - 3');
-  const [derivativeExpression, setDerivativeExpression] = useState('2*x');
+  const [derivativeExpression, setDerivativeExpression] = useState('');
+  const [compiledDerivative, setCompiledDerivative] = useState(null);
   const [initialGuess, setInitialGuess] = useState('1');
   const [tolerance, setTolerance] = useState('0.0001');
   const [maxIterations, setMaxIterations] = useState('100');
@@ -22,9 +23,24 @@ function Newton() {
     }
   };
 
+  const calculateDerivative = () => {
+    try {
+      const node = math.parse(functionExpression);
+      const derivativeNode = math.derivative(node, 'x');
+      const compiled = derivativeNode.compile();
+      setDerivativeExpression(derivativeNode.toString());
+      setCompiledDerivative(compiled);
+      setError('');
+    } catch (err) {
+      setError('Error al calcular la derivada: ' + err.message);
+      setDerivativeExpression('');
+      setCompiledDerivative(null);
+    }
+  };
+
   const evaluateDerivative = (x) => {
     try {
-      return math.evaluate(derivativeExpression, { x });
+      return compiledDerivative ? compiledDerivative.evaluate({ x }) : NaN;
     } catch {
       return NaN;
     }
@@ -150,19 +166,25 @@ function Newton() {
   };
 
   useEffect(() => {
+    try {
+      const node = math.parse(functionExpression);
+      const derivativeNode = math.derivative(node, 'x');
+      const compiled = derivativeNode.compile();
+      setCompiledDerivative(compiled);
+      setError('');
+    } catch (err) {
+      setCompiledDerivative(null);
+      setError('Error al derivar automáticamente: ' + err.message);
+    }
     drawGraph();
-  }, [functionExpression, derivativeExpression, result]);
-
-  useEffect(() => {
-    drawGraph();
-  }, []);
+  }, [functionExpression]);
 
   return (
     <div className="app-container">
       <h1>Calculador de Raíces - Método de Newton-Raphson</h1>
       <div className="main-content">
         <div className="graph-container">
-          <canvas ref={canvasRef} width={600} height={400} />
+          <canvas ref={canvasRef} width={700} height={800} />
         </div>
         <div className="right-section">
           <div className="controls-container">
@@ -171,8 +193,10 @@ function Newton() {
               <input type="text" value={functionExpression} onChange={(e) => setFunctionExpression(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Derivada f'(x):</label>
-              <input type="text" value={derivativeExpression} onChange={(e) => setDerivativeExpression(e.target.value)} />
+              <button onClick={calculateDerivative}>Calcular Derivada</button>
+                {derivativeExpression && (
+                  <p>f'(x) = {derivativeExpression}</p>
+                )}
             </div>
             <div className="form-group">
               <label>Valor inicial x₀:</label>
